@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using DocCollabMongoCore;
+using DocCollabMongoCore.Domain.DocumentCollab;
+using Microsoft.AspNetCore.SignalR;
 using Syncfusion.EJ2.DocumentEditor;
 
 namespace DocCollabMongoApi.Hubs;
