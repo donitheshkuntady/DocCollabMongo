@@ -544,18 +544,32 @@ public class DocumentCollabWriteHandler
     {
         //TODO: Convert the sdft string to a document and then Load - also apply changes to Upload
         var fileFullPath = ToPath(roomName, storageIdentifier);
-        var (fileResponse, readStreamAsync) = await _storageHandler.ReadAsync(_bucketName, fileFullPath);
+
+        // Check if directory exists
+        var directory = Path.GetDirectoryName(fileFullPath);
+        if (!Directory.Exists(directory))
+        {
+            throw new DirectoryNotFoundException($"Directory not found: {directory}");
+        }
+
+        // Check if file exists
+        if (!File.Exists(fileFullPath))
+        {
+            throw new FileNotFoundException($"File not found at path: {fileFullPath}");
+        }
 
         using var stream = _recyclableMemoryStreamManager.GetStream();
-        await readStreamAsync(stream);
+
+        // Read from local file
+        using (var fileStream = new FileStream(fileFullPath, FileMode.Open, FileAccess.Read))
+        {
+            await fileStream.CopyToAsync(stream);
+        }
 
         stream.Position = 0;
 
         // Load and return the WordDocument
         var document = WordDocument.Load(stream, FormatType.Docx);
-
-        // Dispose the response object
-        fileResponse.Dispose();
 
         return document;
     }
@@ -614,13 +628,36 @@ public class DocumentCollabWriteHandler
 
         var storageIdentifier = Guid.NewGuid().ToString();
         var fileFullPath = ToPath(roomName, storageIdentifier);
-        await _storageHandler.WriteAsync(_bucketName, fileFullPath, memoryStream);
+        // Create directory if it doesn't exist
+        var directory = Path.GetDirectoryName(fileFullPath);
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        // Write file locally
+        using (var fileStream = new FileStream(fileFullPath, FileMode.Create, FileAccess.Write))
+        {
+            await memoryStream.CopyToAsync(fileStream);
+        }
         return storageIdentifier;
     }
     private void DeleteS3DocCollabFile(string roomName, string storageIdentifier)
     {
         var fileFullPath = ToPath(roomName, storageIdentifier);
-        _ = _storageHandler.DeleteAsync(_bucketName, fileFullPath);
+
+        // Check if file exists before attempting to delete
+        if (File.Exists(fileFullPath))
+        {
+            File.Delete(fileFullPath);
+
+            // Optionally, check if directory is empty and delete it if it is
+            var directory = Path.GetDirectoryName(fileFullPath);
+            if (Directory.Exists(directory) && !Directory.EnumerateFileSystemEntries(directory).Any())
+            {
+                Directory.Delete(directory);
+            }
+        }
     }
 
     public static string ToPath(string room, string key) => $"DocCollabMaster/{room}/{key}";
