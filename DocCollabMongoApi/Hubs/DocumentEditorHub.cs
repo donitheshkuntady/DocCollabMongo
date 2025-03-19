@@ -8,9 +8,8 @@ public sealed class DocumentEditorHub : Hub
 {
     private static readonly Dictionary<string, ActionInfo> s_userManager = [];
     internal static readonly Dictionary<string, List<ActionInfo>> GroupManager = [];
-    private readonly DocumentCollabWriteHandler _documentCollabWriteHandler;
 
-    public DocumentEditorHub(DocumentCollabWriteHandler documentCollabWriteHandler) => _documentCollabWriteHandler = documentCollabWriteHandler;
+    public DocumentEditorHub() { }
 
     public async Task JoinGroupAsync(ActionInfo info)
     {
@@ -72,13 +71,13 @@ public sealed class DocumentEditorHub : Hub
 
                 if (groupMembers.Count == 0)
                 {
-                    var collectionName = $"{ApplicationConstant.DocumentCollabTempTablePrefix}{roomName}";
+                    var collectionName = $"DocColMeta_{roomName}";
                     GroupManager.Remove(roomName);
                     //Push all the updates to the master collection and Publish the same
-                    await _documentCollabWriteHandler.UpdateOperationsToMasterTableAsync(roomName, collectionName, false, 0);
+                    //await _documentCollabWriteHandler.UpdateOperationsToMasterTableAsync(roomName, collectionName, false, 0);
 
                     //Drop the temporary collection on disconnection
-                    _documentCollabWriteHandler.DropTemporaryCollection(collectionName);
+                    //_documentCollabWriteHandler.DropTemporaryCollection(collectionName);
                 }
             }
 
