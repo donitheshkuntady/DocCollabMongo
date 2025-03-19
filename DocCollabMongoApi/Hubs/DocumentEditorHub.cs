@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using DocCollabMongoCore;
+using DocCollabMongoCore.Domain.DocumentCollab;
+using Microsoft.AspNetCore.SignalR;
 using Syncfusion.EJ2.DocumentEditor;
 
 namespace DocCollabMongoApi.Hubs;
@@ -8,8 +10,9 @@ public sealed class DocumentEditorHub : Hub
 {
     private static readonly Dictionary<string, ActionInfo> s_userManager = [];
     internal static readonly Dictionary<string, List<ActionInfo>> GroupManager = [];
+    private readonly DocumentCollabWriteHandler _documentCollabWriteHandler;
 
-    public DocumentEditorHub() { }
+    public DocumentEditorHub(DocumentCollabWriteHandler documentCollabWriteHandler) => _documentCollabWriteHandler = documentCollabWriteHandler;
 
     public async Task JoinGroupAsync(ActionInfo info)
     {
@@ -71,13 +74,13 @@ public sealed class DocumentEditorHub : Hub
 
                 if (groupMembers.Count == 0)
                 {
-                    var collectionName = $"DocColMeta_{roomName}";
+                    var collectionName = $"{ApplicationConstant.DocumentCollabTempTablePrefix}{roomName}";
                     GroupManager.Remove(roomName);
                     //Push all the updates to the master collection and Publish the same
-                    //await _documentCollabWriteHandler.UpdateOperationsToMasterTableAsync(roomName, collectionName, false, 0);
+                    await _documentCollabWriteHandler.UpdateOperationsToMasterTableAsync(roomName, collectionName, false, 0);
 
                     //Drop the temporary collection on disconnection
-                    //_documentCollabWriteHandler.DropTemporaryCollection(collectionName);
+                    _documentCollabWriteHandler.DropTemporaryCollection(collectionName);
                 }
             }
 
