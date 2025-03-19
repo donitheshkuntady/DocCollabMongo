@@ -13,16 +13,15 @@ using System.Threading.Tasks;
 
 namespace DocCollabMongoCore.Domain.DocumentCollab;
 
-public class DocumentCollabWriteHandler 
+public class DocumentCollabWriteHandler
 {
     protected virtual byte DocCollabSaveThreshold => ApplicationConstant.DocCollabSaveThreshold;
     private readonly RecyclableMemoryStreamManager _recyclableMemoryStreamManager;
-    private readonly string _bucketName;
     private readonly ILogger<DocumentCollabWriteHandler> _logger;
 
     public DocumentCollabWriteHandler(IConfiguration configuration, RecyclableMemoryStreamManager recyclableMemoryStreamManager, ILogger<DocumentCollabWriteHandler> logger) : base(writeContext)
     {
-        _recyclableMemoryStreamManager = recyclableMemoryStreamManager;        
+        _recyclableMemoryStreamManager = recyclableMemoryStreamManager;
         _logger = logger;
     }
 
@@ -187,7 +186,7 @@ public class DocumentCollabWriteHandler
         }
         catch (Exception ex)
         {
-            _logger.LogInformation( $"Collab-UpdateAction Error in AddOperationsToCollectionAsync: for RoomName: {action.RoomName}, for User: {action.CurrentUser} - {ex}");
+            _logger.LogInformation($"Collab-UpdateAction Error in AddOperationsToCollectionAsync: for RoomName: {action.RoomName}, for User: {action.CurrentUser} - {ex}");
             throw;
         }
     }
@@ -237,63 +236,6 @@ public class DocumentCollabWriteHandler
 #pragma warning restore CA2200 // Rethrow to preserve stack details
         }
     }
-
-    //private async Task<ActionInfo> AddOperationsToCollectionAsyncOld(ActionInfo action)
-    //{
-    //	var collectionName = $"{ApplicationConstant.DocumentCollabTempTablePrefix}{action.RoomName}";
-    //	var collection = EntityContext.Database.GetCollection<ActionInfo>(collectionName);
-
-    //	// Insert the new operation.
-    //	var clientVersion = action.Version;
-
-    //	// Check if the version already exists - To avoid version conflicts when multiple people are editing the document
-    //	var existingVersion = await collection.Find(a => a.Version == clientVersion).FirstOrDefaultAsync();
-    //	if (existingVersion is { })
-    //	{
-    //		// Find the highest existing version greater than the clientVersion
-    //		var lastVersion = await collection
-    //			.Find(a => a.Version > clientVersion)
-    //			.SortByDescending(a => a.Version)
-    //			.FirstOrDefaultAsync();
-
-    //		// If a version greater than clientVersion exists, increment it by 1
-    //		if (lastVersion is not null)
-    //		{
-    //			clientVersion = lastVersion.Version + 1;
-    //		}
-    //		else
-    //		{
-    //			clientVersion += 1; // Default to incrementing by 1 if no greater version exists
-    //		}
-    //	}
-
-    //	action.Version = clientVersion + 1; // Assuming auto-increment logic.
-    //	await collection.InsertOneAsync(action);
-
-    //	if (clientVersion == 0)
-    //	{
-    //		await CreateRecordForVersionInfoAsync(action.RoomName);
-    //	}
-
-    //	if (action.Version - clientVersion > 0)
-    //	{
-    //		//Updates a specific action in the database, marking it as transformed
-    //		UpdateCurrentActionInDB(collection, action);
-    //	}
-    //	else
-    //	{
-    //		//Transforms and applies actions within a version range
-    //		TransformAndApplyActions(collection, clientVersion, action.Version, ref action);
-    //	}
-
-    //	if (clientVersion == 0 || action.Version % DocCollabSaveThreshold == 0)
-    //	{
-    //		//Saves operations from a temporary collection to the master collection
-    //		_ = UpdateOperationsToMasterTableAsync(action.RoomName, collectionName, true);
-    //	}
-
-    //	return action;
-    //}
 
     private async Task<WordDocument> GetSourceDocumentAsync(string roomName)
     {
@@ -463,30 +405,6 @@ public class DocumentCollabWriteHandler
         return clientVersion;
     }
 
-    //private static void TransformAndApplyActions(IMongoCollection<ActionInfo> collection, int clientVersion, int currentVersion, ref ActionInfo action)
-    //{
-    //	var filter = Builders<ActionInfo>.Filter.Gte(a => a.Version, clientVersion) &
-    //				 Builders<ActionInfo>.Filter.Lte(a => a.Version, currentVersion);
-    //	var excludeId = Builders<ActionInfo>.Projection.Exclude("_id");
-
-    //	var actionsQueue = collection.Find(filter).Project<ActionInfo>(excludeId).ToList();
-
-    //	foreach (var info in actionsQueue)
-    //	{
-    //		if (!info.IsTransformed)
-    //		{
-    //			CollaborativeEditingHandler.TransformOperation(info, actionsQueue);
-    //		}
-    //	}
-
-    //	if (actionsQueue.Count > 0) // Ensure the list is not empty
-    //	{
-    //		action = actionsQueue[^1]; // Use indexing to get the last element (C# index from end operator)
-    //	}
-
-    //	UpdateCurrentActionInDB(collection, action);
-    //}
-
     public async Task UpdateOperationsToMasterTableAsync(string roomName, string tempCollectionName, bool partialSave, int endVersion)
     {
         try
@@ -540,13 +458,13 @@ public class DocumentCollabWriteHandler
 
                 // Apply the latest operation's changes to the document
                 var handler = new CollaborativeEditingHandler(ej2Document);
-                _logger.LogMessage(logLevel: LogLevel.Information, message: $"Collab-UpdateAction: Appending actions started at Version: {endVersion} and LastSyncedVersion: {lastSyncedVersion}");
+                _logger.LogInformation($"Collab-UpdateAction: Appending actions started at Version: {endVersion} and LastSyncedVersion: {lastSyncedVersion}");
                 foreach (var action in actions)
                 {
                     handler.UpdateAction(action);
                 }
 
-                _logger.LogMessage(logLevel: LogLevel.Information, message: $"Collab-UpdateAction: SyncFusion UpdateAction was completed successfully");
+                _logger.LogInformation($"Collab-UpdateAction: SyncFusion UpdateAction was completed successfully");
 
                 //// Serialize the updated document to S3
                 //using var memoryStream = _recyclableMemoryStreamManager.GetStream();
@@ -616,7 +534,7 @@ public class DocumentCollabWriteHandler
         }
         catch (Exception ex)
         {
-            _logger.LogMessage(logLevel: LogLevel.Error, message: $"Collab-UpdateAction Error in UpdateOperationsToMasterTableAsync: for RoomName: {roomName}, for Version: {endVersion} - {ex}");
+            _logger.LogInformation($"Collab-UpdateAction Error in UpdateOperationsToMasterTableAsync: for RoomName: {roomName}, for Version: {endVersion} - {ex}");
             throw;
         }
     }
