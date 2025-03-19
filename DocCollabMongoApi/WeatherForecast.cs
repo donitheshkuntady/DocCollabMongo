@@ -1,4 +1,4 @@
-namespace DocCollabMongo
+namespace DocCollabMongoApi
 {
     public class WeatherForecast
     {

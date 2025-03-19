@@ -1,20 +1,20 @@
-﻿using System.Collections.Generic;
-using DocCollabMongoCore.Entities;
-using MongoDB.Driver;
+﻿//using System.Collections.Generic;
+//using DocCollabMongoCore.Entities;
+//using MongoDB.Driver;
 
-#nullable disable
+//#nullable disable
 
-namespace Aca.DeliverableGenerator.Entities;
+//namespace Aca.DeliverableGenerator.Entities;
 
-public partial class EntityContext
-{
-    public IMongoDatabase Database { get; }
-    public EntityContext(IMongoDatabase database) => Database = database;
-    public IMongoCollection<DocumentCollabMaster> DocumentCollabMaster => Database.GetCollection<DocumentCollabMaster>(CollectionNames.DocumentCollabMasterCollection);
-}
+//public partial class EntityContext
+//{
+//    public IMongoDatabase Database { get; }
+//    public EntityContext(IMongoDatabase database) => Database = database;
+//    public IMongoCollection<DocumentCollabMaster> DocumentCollabMaster => Database.GetCollection<DocumentCollabMaster>(CollectionNames.DocumentCollabMasterCollection);
+//}
 
-public static class CollectionNames
-{
-    public const string DocumentCollabMasterCollection = "DocumentCollabMaster";
-}
+//public static class CollectionNames
+//{
+//    public const string DocumentCollabMasterCollection = "DocumentCollabMaster";
+//}
 

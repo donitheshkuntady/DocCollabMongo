@@ -9,7 +9,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSingleton<MongoDbContext>();
+
 builder.Services.AddSignalR();
+
 
 builder.Services.AddCors(options =>
 {

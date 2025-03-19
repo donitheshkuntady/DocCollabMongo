@@ -5,12 +5,7 @@ using Microsoft.IO;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Syncfusion.EJ2.DocumentEditor;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DocCollabMongoCore.Domain.DocumentCollab;
 
@@ -19,11 +14,12 @@ public class DocumentCollabWriteHandler
     protected virtual byte DocCollabSaveThreshold => ApplicationConstant.DocCollabSaveThreshold;
     private readonly RecyclableMemoryStreamManager _recyclableMemoryStreamManager;
     private readonly ILogger<DocumentCollabWriteHandler> _logger;
-
-    public DocumentCollabWriteHandler(IConfiguration configuration, RecyclableMemoryStreamManager recyclableMemoryStreamManager, ILogger<DocumentCollabWriteHandler> logger) : base(writeContext)
+    protected MongoDbContext EntityContext;
+    public DocumentCollabWriteHandler(MongoDbContext dbContext,IConfiguration configuration, RecyclableMemoryStreamManager recyclableMemoryStreamManager, ILogger<DocumentCollabWriteHandler> logger) 
     {
         _recyclableMemoryStreamManager = recyclableMemoryStreamManager;
         _logger = logger;
+        EntityContext = dbContext;
     }
 
     public async Task<string> ImportFileAsync(FileCollabDetails fileInfo)
@@ -286,9 +282,9 @@ public class DocumentCollabWriteHandler
                 StorageIdentifier = storageIdentifier,
                 Version = 0,
                 IsActive = true,
-                CreatedByUserId = Principal.UserGuid.ToString(),
+                CreatedByUserId = Guid.NewGuid().ToString(), //Principal.UserGuid.ToString(),
                 CreatedDate = DateTimeOffset.UtcNow,
-                LastModifiedByUserId = Principal.UserGuid.ToString(),
+                LastModifiedByUserId = Guid.NewGuid().ToString(), //Principal.UserGuid.ToString(),
                 LastModifiedDate = DateTimeOffset.UtcNow,
             };
 
@@ -488,9 +484,9 @@ public class DocumentCollabWriteHandler
                     StorageIdentifier = storageIdentifier,
                     Version = latestOperation.Version,
                     IsActive = partialSave,
-                    CreatedByUserId = dbMasterCollection is { } ? dbMasterCollection.CreatedByUserId : Principal.UserGuid.ToString(),
+                    CreatedByUserId = dbMasterCollection is { } ? dbMasterCollection.CreatedByUserId : Guid.NewGuid().ToString(), //Principal.UserGuid.ToString(),
                     CreatedDate = dbMasterCollection is { } ? dbMasterCollection.CreatedDate : DateTimeOffset.UtcNow,
-                    LastModifiedByUserId = Principal.UserGuid.ToString(),
+                    LastModifiedByUserId = Guid.NewGuid().ToString(), //Principal.UserGuid.ToString(),
                     LastModifiedDate = DateTimeOffset.UtcNow,
                 };
 
