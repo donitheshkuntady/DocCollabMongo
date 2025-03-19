@@ -1,4 +1,5 @@
 using DocCollabMongoApi.Hubs;
+using DocCollabMongoCore.Domain.DocumentCollab;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,6 @@ builder.Services.AddSingleton<MongoDbContext>();
 
 builder.Services.AddSignalR();
 
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -22,6 +22,9 @@ builder.Services.AddCors(options =>
                           .AllowAnyMethod()
                           .AllowCredentials());
 });
+
+// Register DocumentCollabWriteHandler as transient
+builder.Services.AddTransient<DocumentCollabWriteHandler>();
 
 var app = builder.Build();
 

@@ -12,12 +12,10 @@ namespace DocCollabMongoCore.Domain.DocumentCollab;
 public class DocumentCollabWriteHandler
 {
     protected virtual byte DocCollabSaveThreshold => ApplicationConstant.DocCollabSaveThreshold;
-    private readonly RecyclableMemoryStreamManager _recyclableMemoryStreamManager;
     private readonly ILogger<DocumentCollabWriteHandler> _logger;
     protected MongoDbContext EntityContext;
-    public DocumentCollabWriteHandler(MongoDbContext dbContext,IConfiguration configuration, RecyclableMemoryStreamManager recyclableMemoryStreamManager, ILogger<DocumentCollabWriteHandler> logger) 
+    public DocumentCollabWriteHandler(MongoDbContext dbContext,IConfiguration configuration, ILogger<DocumentCollabWriteHandler> logger) 
     {
-        _recyclableMemoryStreamManager = recyclableMemoryStreamManager;
         _logger = logger;
         EntityContext = dbContext;
     }
@@ -554,6 +552,7 @@ public class DocumentCollabWriteHandler
             throw new FileNotFoundException($"File not found at path: {fileFullPath}");
         }
 
+        var _recyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
         using var stream = _recyclableMemoryStreamManager.GetStream();
 
         // Read from local file
@@ -617,6 +616,8 @@ public class DocumentCollabWriteHandler
     {
         //TODO:Do not convert the sfdt to document and upload - keep it a sfdt.
         var document = WordDocument.Save(sfdtContent);
+
+        var _recyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
         var memoryStream = _recyclableMemoryStreamManager.GetStream();
 
         document.Save(memoryStream, Syncfusion.DocIO.FormatType.Docx);
