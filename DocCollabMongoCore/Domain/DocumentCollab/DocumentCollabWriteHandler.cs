@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MongoDB.Driver;
+using Newtonsoft.Json;
 using Syncfusion.EJ2.DocumentEditor;
 using System;
 using System.Collections.Generic;
@@ -18,8 +19,7 @@ public class DocumentCollabWriteHandler : DomainWriteHandler
     private readonly EventMessageLogWriteHandler _messageLogWriteHandler;
     private readonly ILogger<DocumentCollabWriteHandler> _logger;
 
-    public DocumentCollabWriteHandler(DomainWriteContext writeContext, RecyclableMemoryStreamManager recyclableMemoryStreamManager,
-        StorageHandler storageHandler, IConfiguration configuration, EventMessageLogWriteHandler messageLogWriteHandler, ILogger<DocumentCollabWriteHandler> logger) : base(writeContext)
+    public DocumentCollabWriteHandler(IConfiguration configuration, EventMessageLogWriteHandler messageLogWriteHandler, ILogger<DocumentCollabWriteHandler> logger) : base(writeContext)
     {
         _recyclableMemoryStreamManager = recyclableMemoryStreamManager;
         _storageHandler = storageHandler;

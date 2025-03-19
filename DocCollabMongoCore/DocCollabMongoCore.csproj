@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="3.2.1" />
     <PackageReference Include="Syncfusion.EJ2.WordEditor.AspNet.Core" Version="28.2.4" />
   </ItemGroup>
 
