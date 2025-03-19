@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace DocCollabMongo.Controllers
+namespace DocCollabMongoApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
