@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using DocCollabMongoCore.Entities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using MongoDB.Driver;
@@ -523,7 +524,7 @@ public class DocumentCollabWriteHandler
 
             if (!partialSave)
             {
-                await PublishDocCollabMasterEventAsync(roomName);
+                //await PublishDocCollabMasterEventAsync(roomName);
                 DropTemporaryCollection(tempCollectionName);
                 DeleteVersionInfo(roomName);
             }
@@ -559,24 +560,24 @@ public class DocumentCollabWriteHandler
         return document;
     }
 
-    public async Task PublishDocCollabMasterEventAsync(string roomName)
-    {
-        var eventMessageId = GetNewGuid();
+    //public async Task PublishDocCollabMasterEventAsync(string roomName)
+    //{
+    //    var eventMessageId = GetNewGuid();
 
-        var dbMasterCollection = await EntityContext.DocumentCollabMaster
-                                        .Find(x => x.RoomName == roomName)
-                                        .SortByDescending(x => x.CreatedDate)
-                                        .FirstOrDefaultAsync();
+    //    var dbMasterCollection = await EntityContext.DocumentCollabMaster
+    //                                    .Find(x => x.RoomName == roomName)
+    //                                    .SortByDescending(x => x.CreatedDate)
+    //                                    .FirstOrDefaultAsync();
 
-        //if (dbMasterCollection is { })
-        //{
-        //    var docCollabMasterToPublish = dbMasterCollection.ToDocCollabMasterPublishEvent(eventMessageId);
-        //    var eventData = VersionedValue.FromInsert(docCollabMasterToPublish);
-        //    await _messageLogWriteHandler.WriteAsync(new EventMessageLogFacade { Id = eventMessageId.ToString(), TimeSent = NowOffsetUtc, Content = JsonSerializer.Serialize(eventData), Domain = EventDomain.DocCollab, IsGlobal = true });
+    //    if (dbMasterCollection is { })
+    //    {
+    //        var docCollabMasterToPublish = dbMasterCollection.ToDocCollabMasterPublishEvent(eventMessageId);
+    //        var eventData = VersionedValue.FromInsert(docCollabMasterToPublish);
+    //        await _messageLogWriteHandler.WriteAsync(new EventMessageLogFacade { Id = eventMessageId.ToString(), TimeSent = NowOffsetUtc, Content = JsonSerializer.Serialize(eventData), Domain = EventDomain.DocCollab, IsGlobal = true });
 
-        //    await EventService.PublishAsync(new EventPublishDetails(eventData, EventDomain.DocCollab, EventAction.Insert, Principal) { IsGlobal = true });
-        //}
-    }
+    //        await EventService.PublishAsync(new EventPublishDetails(eventData, EventDomain.DocCollab, EventAction.Insert, Principal) { IsGlobal = true });
+    //    }
+    //}
 
     private static List<ActionInfo> GetOperationsQueue(List<DocCollabTempCollectionDetails> tempCollectionData)
     {
