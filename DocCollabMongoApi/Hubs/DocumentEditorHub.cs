@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using System.Text.RegularExpressions;
+using Syncfusion.EJ2.DocumentEditor;
 
 namespace DocCollabMongoApi.Hubs;
 

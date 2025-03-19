@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Syncfusion.EJ2.WordEditor.AspNet.Core" Version="28.2.4" />
+  </ItemGroup>
+
 </Project>
