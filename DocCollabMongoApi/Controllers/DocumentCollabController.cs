@@ -1,6 +1,8 @@
 ﻿using DocCollabMongoApi.Hubs;
+using DocCollabMongoCore.Domain.DocumentCollab;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Syncfusion.EJ2.DocumentEditor;
 
 namespace DocCollabMongoApi.Controllers
 {
@@ -17,10 +19,6 @@ namespace DocCollabMongoApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet("{documentCollabId}/download")]
-        public Task<string> Download
-            ([FromServices] DocumentCollabDownloadHandler handler, string documentCollabId) => handler.DownloadAsync(documentCollabId);
-
         [HttpPost]
         [Route("ImportFile")]
         public Task<string> ImportFile([FromServices] DocumentCollabWriteHandler handler, FileCollabDetails fileInfo) => handler.ImportFileAsync(fileInfo);
@@ -28,7 +26,7 @@ namespace DocCollabMongoApi.Controllers
         [HttpPost("updateAction")]
         public async Task<ActionInfo?> UpdateAction([FromServices] DocumentCollabWriteHandler handler, [FromBody] ActionInfo param)
         {
-            _logger.LogMessage(logLevel: LogLevel.Information, message: $"ActionInfo for RoomName: {param.RoomName}, for User: {param.CurrentUser} - {param}");
+            _logger.LogInformation($"ActionInfo for RoomName: {param.RoomName}, for User: {param.CurrentUser} - {param}");
             var modifiedAction = await handler.UpdateActionAsync(param);
             await _hubContext.Clients.Group(param.RoomName).SendAsync("dataReceived", "action", modifiedAction);
             return modifiedAction;

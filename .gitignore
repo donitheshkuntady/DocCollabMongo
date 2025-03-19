@@ -8,3 +8,7 @@
 /.vs/ProjectEvaluation
 /DocCollabMongoCore/obj/Debug/net8.0
 /DocCollabMongoCore/bin/Debug/net8.0
+/DocCollabMongoCore/obj/DocCollabMongoCore.csproj.nuget.dgspec.json
+/DocCollabMongoCore/obj/project.assets.json
+/DocCollabMongoCore/obj/project.nuget.cache
+/.vs/DocCollabMongo/v17
