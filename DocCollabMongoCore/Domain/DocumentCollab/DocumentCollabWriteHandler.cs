@@ -1,4 +1,7 @@
-﻿using MongoDB.Driver;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.IO;
+using MongoDB.Driver;
 using Newtonsoft.Json;
 using Syncfusion.EJ2.DocumentEditor;
 using System;
@@ -14,17 +17,12 @@ public class DocumentCollabWriteHandler
 {
     protected virtual byte DocCollabSaveThreshold => ApplicationConstant.DocCollabSaveThreshold;
     private readonly RecyclableMemoryStreamManager _recyclableMemoryStreamManager;
-    private readonly StorageHandler _storageHandler;
     private readonly string _bucketName;
-    private readonly EventMessageLogWriteHandler _messageLogWriteHandler;
     private readonly ILogger<DocumentCollabWriteHandler> _logger;
 
-    public DocumentCollabWriteHandler(IConfiguration configuration, EventMessageLogWriteHandler messageLogWriteHandler, ILogger<DocumentCollabWriteHandler> logger) : base(writeContext)
+    public DocumentCollabWriteHandler(IConfiguration configuration, RecyclableMemoryStreamManager recyclableMemoryStreamManager, ILogger<DocumentCollabWriteHandler> logger) : base(writeContext)
     {
-        _recyclableMemoryStreamManager = recyclableMemoryStreamManager;
-        _storageHandler = storageHandler;
-        _bucketName = configuration.GetS3BucketName();
-        _messageLogWriteHandler = messageLogWriteHandler;
+        _recyclableMemoryStreamManager = recyclableMemoryStreamManager;        
         _logger = logger;
     }
 
@@ -189,7 +187,7 @@ public class DocumentCollabWriteHandler
         }
         catch (Exception ex)
         {
-            _logger.LogMessage(logLevel: LogLevel.Error, message: $"Collab-UpdateAction Error in AddOperationsToCollectionAsync: for RoomName: {action.RoomName}, for User: {action.CurrentUser} - {ex}");
+            _logger.LogInformation( $"Collab-UpdateAction Error in AddOperationsToCollectionAsync: for RoomName: {action.RoomName}, for User: {action.CurrentUser} - {ex}");
             throw;
         }
     }
