@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DocCollabMongoCore.Domain.DocumentCollab;
 
-public class DocumentCollabWriteHandler : DomainWriteHandler
+public class DocumentCollabWriteHandler 
 {
     protected virtual byte DocCollabSaveThreshold => ApplicationConstant.DocCollabSaveThreshold;
     private readonly RecyclableMemoryStreamManager _recyclableMemoryStreamManager;
@@ -652,14 +652,14 @@ public class DocumentCollabWriteHandler : DomainWriteHandler
                                         .SortByDescending(x => x.CreatedDate)
                                         .FirstOrDefaultAsync();
 
-        if (dbMasterCollection is { })
-        {
-            var docCollabMasterToPublish = dbMasterCollection.ToDocCollabMasterPublishEvent(eventMessageId);
-            var eventData = VersionedValue.FromInsert(docCollabMasterToPublish);
-            await _messageLogWriteHandler.WriteAsync(new EventMessageLogFacade { Id = eventMessageId.ToString(), TimeSent = NowOffsetUtc, Content = JsonSerializer.Serialize(eventData), Domain = EventDomain.DocCollab, IsGlobal = true });
+        //if (dbMasterCollection is { })
+        //{
+        //    var docCollabMasterToPublish = dbMasterCollection.ToDocCollabMasterPublishEvent(eventMessageId);
+        //    var eventData = VersionedValue.FromInsert(docCollabMasterToPublish);
+        //    await _messageLogWriteHandler.WriteAsync(new EventMessageLogFacade { Id = eventMessageId.ToString(), TimeSent = NowOffsetUtc, Content = JsonSerializer.Serialize(eventData), Domain = EventDomain.DocCollab, IsGlobal = true });
 
-            await EventService.PublishAsync(new EventPublishDetails(eventData, EventDomain.DocCollab, EventAction.Insert, Principal) { IsGlobal = true });
-        }
+        //    await EventService.PublishAsync(new EventPublishDetails(eventData, EventDomain.DocCollab, EventAction.Insert, Principal) { IsGlobal = true });
+        //}
     }
 
     private static List<ActionInfo> GetOperationsQueue(List<DocCollabTempCollectionDetails> tempCollectionData)
@@ -695,7 +695,7 @@ public class DocumentCollabWriteHandler : DomainWriteHandler
         document.Save(memoryStream, Syncfusion.DocIO.FormatType.Docx);
         memoryStream.Position = 0;
 
-        var storageIdentifier = GetNewGuid().ToString();
+        var storageIdentifier = Guid.NewGuid().ToString();
         var fileFullPath = ToPath(roomName, storageIdentifier);
         await _storageHandler.WriteAsync(_bucketName, fileFullPath, memoryStream);
         return storageIdentifier;
