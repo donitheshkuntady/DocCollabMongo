@@ -325,12 +325,12 @@ public class DocumentCollabWriteHandler
     {
         try
         {
-            var isValidSfdt = DocTemplateWriteHandler.IsValidWordSfdt(sfdtString);
+            var isValidSfdt = IsValidWordSfdt(sfdtString);
 
             if (!isValidSfdt)
             {
-                throw new InvalidDataException(new ValidationResult(
-                    StringLocalizer[LocalizationKeyConstants.InvalidValue, nameof(sfdtString)]).ErrorMessage);
+                var validationResult = new ValidationResult($"{sfdtString} is invalid");
+                throw new InvalidDataException(validationResult.ErrorMessage);
             }
 
             // Upload the sfdt content to s3
@@ -705,4 +705,18 @@ public class DocumentCollabWriteHandler
     }
 
     public static string ToPath(string room, string key) => $"DocCollabMaster/{room}/{key}";
+
+    public static bool IsValidWordSfdt(string sfdtContent)
+    {
+        try
+        {
+            WordDocument.Save(sfdtContent);
+
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
 }
