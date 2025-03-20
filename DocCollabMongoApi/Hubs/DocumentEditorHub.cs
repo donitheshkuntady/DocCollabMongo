@@ -22,22 +22,15 @@ public sealed class DocumentEditorHub : Hub
         //Add to SignalR group
         await Groups.AddToGroupAsync(Context.ConnectionId, info.RoomName);
 
+        if (GroupManager.TryGetValue(info.RoomName, out var value))
+        {
+            await Clients.Caller.SendAsync("dataReceived", "addUser", value);
+        }
+
         lock (GroupManager)
         {
             if (GroupManager.TryGetValue(info.RoomName, out var group))
             {
-                // Check if user already exists in the group based on CreatedUser property
-                var existingUser = group.FirstOrDefault(u => u.CurrentUser == info.CurrentUser);
-                if (existingUser is { })
-                {
-                    // Remove the existing user before adding again
-                    group.Remove(existingUser);
-
-                    Clients.OthersInGroup(info.RoomName).SendAsync("dataReceived", "removeUser", existingUser.ConnectionId);
-                    Groups.RemoveFromGroupAsync(existingUser.ConnectionId, info.RoomName);
-                    s_userManager.Remove(existingUser.ConnectionId);
-                }
-
                 group.Add(info);
             }
             else
@@ -46,14 +39,47 @@ public sealed class DocumentEditorHub : Hub
                 GroupManager.Add(info.RoomName, actions);
             }
         }
-        // Send existing users to the caller
-        if (GroupManager.TryGetValue(info.RoomName, out var value))
-        {
-            await Clients.Caller.SendAsync("dataReceived", "addUser", value);
-        }
-
         //Send information about new user joining to others
         await Clients.GroupExcept(info.RoomName, Context.ConnectionId).SendAsync("dataReceived", "addUser", info);
+
+        //s_userManager.TryAdd(Context.ConnectionId, info);
+
+        //info.ConnectionId = Context.ConnectionId;
+        ////Add to SignalR group
+        //await Groups.AddToGroupAsync(Context.ConnectionId, info.RoomName);
+
+        //lock (GroupManager)
+        //{
+        //    if (GroupManager.TryGetValue(info.RoomName, out var group))
+        //    {
+        //        // Check if user already exists in the group based on CreatedUser property
+        //        var existingUser = group.FirstOrDefault(u => u.CurrentUser == info.CurrentUser);
+        //        if (existingUser is { })
+        //        {
+        //            // Remove the existing user before adding again
+        //            group.Remove(existingUser);
+
+        //            Clients.OthersInGroup(info.RoomName).SendAsync("dataReceived", "removeUser", existingUser.ConnectionId);
+        //            Groups.RemoveFromGroupAsync(existingUser.ConnectionId, info.RoomName);
+        //            s_userManager.Remove(existingUser.ConnectionId);
+        //        }
+
+        //        group.Add(info);
+        //    }
+        //    else
+        //    {
+        //        var actions = new List<ActionInfo> { info };
+        //        GroupManager.Add(info.RoomName, actions);
+        //    }
+        //}
+        //// Send existing users to the caller
+        //if (GroupManager.TryGetValue(info.RoomName, out var value))
+        //{
+        //    await Clients.Caller.SendAsync("dataReceived", "addUser", value);
+        //}
+
+        ////Send information about new user joining to others
+        //await Clients.GroupExcept(info.RoomName, Context.ConnectionId).SendAsync("dataReceived", "addUser", info);
     }
 
     public override Task OnConnectedAsync()

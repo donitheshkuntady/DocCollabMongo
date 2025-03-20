@@ -1,4 +1,5 @@
 using DocCollabMongoApi.Hubs;
+using DocCollabMongoApi.Loggers;
 using DocCollabMongoCore.Domain.DocumentCollab;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,14 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Logging.AddCodeFileLogger(options =>
+{
+    builder.Configuration.GetSection("Logging")
+           .GetSection("RoundTheCodeFile")
+           .GetSection("Options")
+           .Bind(options);
+});
 
 builder.Services.AddSingleton<MongoDbContext>();
 
