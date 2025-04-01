@@ -41,7 +41,7 @@ public class DocumentCollabWriteHandler
         var tempCollection = EntityContext.Database.GetCollection<DocCollabTempCollectionDetails>(collectionName);
 
         var excludeId = Builders<DocCollabTempCollectionDetails>.Projection.Exclude("_id");
-
+        lastSyncedVersion = await GetLastedSyncedVersionAsync(fileInfo.RoomName);
         var newUpdatedActions = await tempCollection
                                     .Find(c => c.Version > lastSyncedVersion)
                                     .SortBy(c => c.Version)  // Sort in ascending order
